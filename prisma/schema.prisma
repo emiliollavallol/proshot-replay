@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  pending
+  processing
+  completed
+  failed
+}
+
+model User {
+  id           String          @id @default(cuid())
+  name         String
+  email        String          @unique
+  passwordHash String
+  createdAt    DateTime        @default(now())
+  highlights   ShotHighlight[]
+}
+
+model ShotHighlight {
+  id                 String   @id @default(cuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseName         String?
+  holeNumber         Int?
+  par                Int?
+  yardage            Int?
+  club               String?
+  weather            String?
+  lie                String?
+  emotion            String?
+  description        String
+
+  llmHoleDescription String?
+
+  status             Status    @default(pending)
+  providerName       String    @default("videoProviderA")
+  providerJobId      String?
+  videoUrl           String?
+  thumbnailUrl       String?
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([userId])
+}
